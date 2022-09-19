@@ -43,7 +43,14 @@ export default function Artist(){
 
 
     function addtoChart(user,tatto){
-       
+        console.log(
+            {
+                id: user.id,
+                artist: artist.name,
+                photo: tatto.photo,
+                price: tatto.price
+            }
+        )
     
         const requisicao = axios.post(
             `http://localhost:5000/cart`,
@@ -54,16 +61,15 @@ export default function Artist(){
                 price: tatto.price
             }
         );
-
-        requisicao.then((res) => 
-            setArtist(res.data)
-        );
     }
+
+    const avaliacoes = artist.star_1 + artist.star_2 + artist.star_3 + artist.star_4 + artist.star_5;
+    const rating = (1*artist.star_1 + 2*artist.star_2 + 3*artist.star_3 + 4*artist.star_4 + 5*artist.star_5)/avaliacoes;
     
     return(
         <>
         <ArtistContainer>
-            <Link1 to='/'>
+            <Link1 to='/home'>
                 <Logo>
                     <img src={omega}/>
                     <h1>mega Tattoos</h1>
@@ -75,7 +81,7 @@ export default function Artist(){
                     <h1>Artista: {artist.name}</h1>
                     <h1>{artist.description}</h1>
                     <h1>Especialidade: {artist.specialty}</h1>
-                    <h1>4.9/5  4000 Avaliações</h1>
+                    <h1> {rating.toFixed(2)}/5  {avaliacoes} Avaliações </h1>
                 </ArtistDescription>
             </ArtistArea>
             <PortfolioArea>

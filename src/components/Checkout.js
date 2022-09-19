@@ -1,16 +1,80 @@
 import { useNavigate } from "react-router-dom";
+import {useEffect, useContext, useState} from "react"
+import UserContext from "../assets/context/UserContext";
+import axios from "axios";
 
 import styled from "styled-components";
 import omega from "../assets/imagens/omega.png"
 
+
 export default function Checkout() {
 
     const navigate = useNavigate();
+    const { user, counter, setCounter} = useContext(UserContext);
+    const [cart, setCart] = useState([]);
+    const [balance, setBalance] = useState(0);
 
     // map com os pedidos efetuados
-    // deletar pedidos
-    // botao de confirmar pedido
-    // atalho de voltar ao home
+    // deletar pedidos: <ion-icon name="trash-outline" color="black"></ion-icon>
+    
+    useEffect(() =>{
+    
+        const requisicao = axios.get(
+            `http://localhost:5000/cart/${user.id}`,
+        );
+
+        const sum = (cart.reduce((accumulator, product) => {
+            return accumulator + product.price;
+        }, 0))
+    
+        setBalance(sum/100);
+    
+        requisicao.then((res) =>{
+            setCart(res.data)
+          
+        }
+        );
+    },[cart]);
+   
+
+    function deleteItem(productId){
+        const requisicao = axios.delete(
+            `http://localhost:5000/cart/${productId}`,
+        );
+
+        requisicao.then(() => {
+
+            const requisicao = axios.get(
+                `http://localhost:5000/cart/${user.id}`,
+            );
+    
+            requisicao.then((res) => 
+                setCart(res.data)
+            );
+        });
+
+    }
+
+    function checkout(userId){
+        const requisicao = axios.delete(
+            `http://localhost:5000/checkout/${userId}`,
+        );
+
+        requisicao.then(() => {
+            alert("Pedido realizado com sucesso!\nEnviaremos mais informações sobre como prosseguir a compra no  seu email.")
+            const requisicao = axios.get(
+                `http://localhost:5000/cart/${user.id}`,
+            );
+    
+            requisicao.then((res) => 
+                setCart(res.data)
+            );
+        });
+
+    }
+
+   
+
 
     return (
         <>
@@ -20,11 +84,31 @@ export default function Checkout() {
                     <h1>mega Tattoos</h1>
                 </Logo>
                 <Cart>
+                    {cart.length?
+                        cart.map((produto) => 
+                            <div className="tattoo">
+                                <img alt="" src={produto.photo}></img>
+                                <div className="tattooInfo">
+                                    <p>Tatuador: {produto.artist}</p>
+                                    <p>Preço: R$ {produto.price/100}</p>
+                                    <ion-icon name="trash-outline" color="danger" onClick={() => deleteItem(produto._id)}></ion-icon>
+                                </div>
+                            </div> 
+                        
+                        )
+                        
+                        :<h1>Não tem nada no cart!</h1>
 
+                    }
+                    
                 </Cart>
+
+                <Balance>
+                    <p>Valor Total: R$ {balance}</p>
+                </Balance>
                 <Buttons>
                     <Button1 onClick={() => { navigate("/home"); }}>Home</Button1>
-                    <Button2 >Confirmar</Button2>
+                    <Button2 onClick={() => checkout(user.id) } >Confirmar</Button2>
                 </Buttons>
             </Screen1>
             <Footer><h3>© Omega Tattoos. All Rights Reserved - 2022. Licensed</h3></Footer>
@@ -74,23 +158,50 @@ const Cart = styled.div`
     height: 446px;
     margin-top: 8px;
     margin-bottom: 12px;
+    padding-top: 15px;
     box-sizing: border-box;
 
-    background: white;
+    background: transparent;
     border-width: 2px;
     border-color: #fff;
     border-radius: 2px;
+    overflow-y: auto;
     
-    .badge:after{
-        content:attr(value);
-        font-size:12px;
-        color: #fff;
-        background: red;
-        border-radius:50%;
-        padding: 0 5px;
-        position:relative;
-        
-        opacity:0.9;
+    
+    .tattoo {
+
+        border: 1px solid white;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        margin-bottom: 5px;
+
+        img {
+        width: 100px;
+        height: 100px;
+        border-radius: 4px;
+        object-fit: cover;
+        }
+
+        p {
+            color: white;
+            font-family: 'Marcellus', sans-serif;
+            font-size: 15px;
+        }
+
+    }
+   
+`
+
+const Balance = styled.div`
+    width: 300px;
+    margin: 10px 0px;
+
+    p {
+        color: white;
+        font-family: 'Marcellus', sans-serif;
+        font-size: 15px;
     }
 `
 

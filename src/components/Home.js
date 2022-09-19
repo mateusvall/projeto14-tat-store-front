@@ -15,14 +15,13 @@ export default function Home() {
 
     const navigate = useNavigate();
 
-    // const { user } = useContext(UserContext);
-    // <img alt="" src={exit} onClick={() => { setUser(null); navigate("/"); }}></img>
+    const { user, counter, setCounter, cart, setCart } = useContext(UserContext);
 
     // ion icons
     // lixo: <ion-icon name="trash-outline"></ion-icon>
     // cart: <ion-icon name="cart-outline"></ion-icon>
 
-    const user = { name: "Matheus" }
+    // const user = { name: "Matheus" }
 
     const [artists, setArtists] = useState([]);
 
@@ -37,11 +36,26 @@ export default function Home() {
         );
     },[]);
 
+    useEffect(() =>{
+    
+        const requisicao = axios.get(
+            `http://localhost:5000/cart/${user.id}`,
+        );
+  
+        requisicao.then((res) =>{
+            setCart(res.data)
+            setCounter(cart.length)
+          
+        }
+        );
+    },[cart]);
+
     return (<>
         <Screen1>
             <Logo>
                 <img alt="" src={omega}></img>
                 <h1>mega Tattoos</h1>
+                <h1>{counter}</h1>
             </Logo>
             <UserBar>
                 <>

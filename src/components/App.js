@@ -11,9 +11,11 @@ import Artist from "./Artist";
 export default function App() {
 
   const [user, setUser] = useState(null);
+  const [counter, setCounter] = useState(0);
+  const [cart, setCart] = useState([]);
 
   return (
-    <UserContext.Provider value={{ user, setUser }} >
+    <UserContext.Provider value={{ user, setUser, counter, setCounter, cart, setCart }} >
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<SignIn />} />
